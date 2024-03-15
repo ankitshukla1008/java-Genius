@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0e2a4;
+        }
+
+        img, h2 {
+            display: inline;
+            vertical-align: middle; /* Align vertically */
+            margin-right: 50px;
+        }
+
+        #signin-form {
+            margin-top: 15px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background-color: #def18680;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="D:\Project 21-02-2024\login\logo.png">
+        <h2>Login</h2>
+        <!-- Signin Form -->
+        <form id="signin-form">
+            <div class="input-group">
+                <label for="signin-email">Email:</label>
+                <input type="email" id="signin-email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="signin-password">Password:</label>
+                <input type="password" id="signin-password" name="password" required>
+            </div>
+            <button type="submit">Sign in</button>
+            <p>Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
+        </form>
+
+        <!-- Signup Form (Initially Hidden) -->
+        <form id="signup-form" class="hidden">
+            <div class="input-group">
+                <!-- <label for="signup-name">Name:</label>
+                <input type="text" id="signup-name" name="name" required> -->
+            </div>
+            <div class="input-group">
+                <label for="signup-email">Email:</label>
+                <input type="email" id="signup-email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="signup-password">Password:</label>
+                <input type="password" id="signup-password" name="password" required>
+            </div>
+            <button type="submit">Sign up</button>
+            <p>Already have an account? <a href="#" id="signin-link">Sign in</a></p>
+        </form>
+        
+        <p id="error-message"></p>
+        <p id="success-message"></p>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const signinForm = document.getElementById("signin-form");
+        const signupForm = document.getElementById("signup-form");
+        const signinLink = document.getElementById("signin-link");
+        const signupLink = document.getElementById("signup-link");
+        const errorMessage = document.getElementById("error-message");
+        const successMessage = document.getElementById("success-message");
+
+        function showSignupForm() {
+            localStorage.setItem('formState', 'signup');
+            signinForm.style.display = "none";
+            signupForm.style.display = "block";
+            resetMessages();
+        }
+
+        function showSigninForm() {
+            localStorage.setItem('formState', 'signin');
+            signupForm.style.display = "none";
+            signinForm.style.display = "block";
+            resetMessages();
+        }
+
+        function resetMessages() {
+            errorMessage.innerText = "";
+            successMessage.innerText = "";
+        }
+
+        const storedFormState = localStorage.getItem('formState');
+        if (storedFormState === 'signup') {
+            showSignupForm();
+        } else {
+            showSigninForm();
+        }
+
+        signupLink.addEventListener("click", function(event) {
+            event.preventDefault();
+            showSignupForm();
+        });
+
+        signinLink.addEventListener("click", function(event) {
+            event.preventDefault();
+            showSigninForm();
+        });
+
+        function validateForm(form) {
+            const email = form.querySelector('input[type="email"]');
+            const password = form.querySelector('input[type="password"]');
+
+            if (!email.value || !password.value) {
+                errorMessage.innerText = "Email and password are required.";
+                return false;
+            }
+
+            return true;
+        }
+
+        async function submitForm(form, url) {
+            if (!validateForm(form)) {
+                return;
+            }
+
+            try {
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+                    successMessage.innerText = responseData.message || "Login successful!";
+                    // Redirect to dashboard or perform any other action upon successful login
+                } else {
+                    const responseData = await response.json();
+                    throw new Error(responseData.message || "Failed to submit form");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                errorMessage.innerText = error.message || "An error occurred. Please try again.";
+            }
+        }
+
+        signinForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            submitForm(signinForm, '/api/login'); // Update the URL to match your backend endpoint
+        });
+
+        signupForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            submitForm(signupForm, '/api/signup'); // Update the URL to match your backend endpoint
+        });
+    });
+</script>
+
+    
+</body>
+</html>
