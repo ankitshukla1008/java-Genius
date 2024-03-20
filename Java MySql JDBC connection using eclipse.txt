@@ -1,0 +1,37 @@
+Note: First you create project and add MySql jars, right click Build path > Configure build path > Select MySql downloaded connecter jars file > apply and close
+
+
+
+package ankit;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class ankitjdbc {
+	private static final String username = "root";
+	private static final String password = "root";
+	private static final String url = "jdbc:mysql://127.0.0.1:3306/galaxy";
+
+	public static void main(String[] args) throws SQLException {
+		System.out.println("the jdbc connection is been started");
+		Connection connection=DriverManager.getConnection(url,username,password);
+		Statement statement=connection.createStatement();
+		
+		ResultSet resultset=statement.executeQuery("select * from jdbcdata");
+		
+		System.out.println("the connction established and query is excetuted");
+		while(resultset.next()) {
+			int id = resultset.getInt("id");
+            String name = resultset.getString("name");
+            String address = resultset.getString("address");;
+            System.out.println("id"+id+" name "+name+" address "+address);
+			
+		}
+		
+	}
+
+}
+
